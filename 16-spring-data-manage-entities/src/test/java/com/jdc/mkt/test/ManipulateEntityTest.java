@@ -1,12 +1,15 @@
 package com.jdc.mkt.test;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
+import org.hibernate.LazyInitializationException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
@@ -23,7 +26,7 @@ import com.jdc.mkt.entity.Product;
 public class ManipulateEntityTest extends EntityFactory {
 
 	//@Test
-	@Order(1)
+//	@Order(1)
 	void insertCategory() {
 		// transient state
 		var cat = new Category("Snacks");
@@ -48,7 +51,7 @@ public class ManipulateEntityTest extends EntityFactory {
 
 	}
 
-	@Order(2)
+//	@Order(2)
 	//@ParameterizedTest
 	@CsvSource("Sunflower seeds ,2000,Snacks")
 	void insertProduct(String pName, int price, String cName) {
@@ -66,8 +69,8 @@ public class ManipulateEntityTest extends EntityFactory {
 
 	}
 	
-	@Order(3)
-	@ParameterizedTest
+//	@Order(3)
+//	@ParameterizedTest
 	@ValueSource(ints=6)
 	void find_method(int id) {
 		var em = emf.createEntityManager();
@@ -78,12 +81,25 @@ public class ManipulateEntityTest extends EntityFactory {
 	
 	@Order(4)
 	@ParameterizedTest
-	@ValueSource(ints=6)
+	@ValueSource(ints=3)
 	void reference_method(int id) {
 		var em = emf.createEntityManager();
-		var product = em.getReference(Product.class, id);
+		em.getTransaction().begin();
+		var product = em.find(Product.class, id);
 		//assertEquals("Lemon", product.getName());
 		//assertThrows(EntityNotFoundException.class,()-> em.getReference(Product.class, id));
+		
+		
+		em.persist(new Product("Banana",4500));
+		em.getTransaction().commit();
+		assertTrue(em.contains(product));
+		em.detach(product);
+		
+//		System.out.println(product.getTags());
+		
+		assertThrows(LazyInitializationException.class, () -> product.getCategory().getName());
+		
+		
 	}
 	
 	

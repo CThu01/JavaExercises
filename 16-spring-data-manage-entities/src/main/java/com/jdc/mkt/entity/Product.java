@@ -1,6 +1,7 @@
 package com.jdc.mkt.entity;
 
 import java.io.Serializable;
+import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -13,6 +14,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import javax.persistence.Basic;
+import javax.persistence.ElementCollection;
+
 import static javax.persistence.FetchType.LAZY;
 import static javax.persistence.FetchType.EAGER;
 
@@ -33,8 +36,10 @@ public class Product implements Serializable{
 	private String name;
 	
 	private int price;
+	@ElementCollection
+	private List<String> tags;
 	
-	@ManyToOne
+	@ManyToOne /* (fetch = LAZY) */
 	private Category category;
 
 	public Product(String name, int price) {
